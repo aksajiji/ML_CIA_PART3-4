@@ -1,0 +1,581 @@
+{
+  "version": "v20260222_145153_8dab6f",
+  "training_timestamp": "2026-02-22T14:51:53.528204",
+  "config": {
+    "random_state": 42,
+    "outer_cv_folds": 5,
+    "inner_cv_folds": 3,
+    "n_features_to_select": 15,
+    "test_holdout_size": 0.15,
+    "artifacts_dir": "model_artifacts",
+    "data_dir": "data",
+    "feature_selection_method": "combined",
+    "scale_for_rf": false,
+    "scale_for_svm": true
+  },
+  "all_features": [
+    "school",
+    "sex",
+    "age",
+    "address",
+    "famsize",
+    "Pstatus",
+    "Medu",
+    "Fedu",
+    "Mjob",
+    "Fjob",
+    "reason",
+    "guardian",
+    "traveltime",
+    "studytime",
+    "failures",
+    "schoolsup",
+    "famsup",
+    "paid",
+    "activities",
+    "nursery",
+    "higher",
+    "internet",
+    "romantic",
+    "famrel",
+    "freetime",
+    "goout",
+    "Dalc",
+    "Walc",
+    "health",
+    "absences",
+    "G1",
+    "G2"
+  ],
+  "selected_features": [
+    "age",
+    "Medu",
+    "Mjob",
+    "reason",
+    "studytime",
+    "failures",
+    "romantic",
+    "freetime",
+    "goout",
+    "health",
+    "absences",
+    "G1",
+    "G2",
+    "avg_internal",
+    "grade_trend",
+    "total_alcohol",
+    "study_free_ratio",
+    "parent_edu_avg"
+  ],
+  "mi_scores": {
+    "school": 0.052928353135492934,
+    "sex": 0.06411472646917593,
+    "age": 0.1621176419607182,
+    "address": 0.071802907877482,
+    "famsize": 0.16056229106170417,
+    "Pstatus": 0.029026613003134916,
+    "Medu": 0.23496456909926877,
+    "Fedu": 0.1655543561664099,
+    "Mjob": 0.2173455072781607,
+    "Fjob": 0.17670104731647296,
+    "reason": 0.2322957377659174,
+    "guardian": 0.03438916754288268,
+    "traveltime": 0.07982692915973377,
+    "studytime": 0.2022780366661472,
+    "failures": 0.13520695579924213,
+    "schoolsup": 0.04234772026963718,
+    "famsup": 0.0681036866642768,
+    "paid": 0.07980765536020007,
+    "activities": 0.04922493109571047,
+    "nursery": 0.07664819937592071,
+    "higher": 0.09070493735493024,
+    "internet": 0.10474953372530971,
+    "romantic": 0.20558325652716336,
+    "famrel": 0.14611552898564417,
+    "freetime": 0.21408847808723586,
+    "goout": 0.205419301231355,
+    "Dalc": 0.07359195327823809,
+    "Walc": 0.12460523025498338,
+    "health": 0.1649185981550536,
+    "absences": 0.27634768914111296,
+    "G1": 0.9950214355531175,
+    "G2": 1.396630805271669,
+    "avg_internal": 1.2623109741104575,
+    "grade_trend": 0.2166415003182358,
+    "total_alcohol": 0.2249289170900317,
+    "study_free_ratio": 0.3023574389414061,
+    "parent_edu_avg": 0.21170218152439535
+  },
+  "rfe_ranking": {
+    "school": 21,
+    "sex": 20,
+    "age": 1,
+    "address": 14,
+    "famsize": 5,
+    "Pstatus": 22,
+    "Medu": 1,
+    "Fedu": 6,
+    "Mjob": 4,
+    "Fjob": 8,
+    "reason": 1,
+    "guardian": 10,
+    "traveltime": 9,
+    "studytime": 7,
+    "failures": 1,
+    "schoolsup": 16,
+    "famsup": 17,
+    "paid": 15,
+    "activities": 13,
+    "nursery": 19,
+    "higher": 23,
+    "internet": 18,
+    "romantic": 1,
+    "famrel": 3,
+    "freetime": 1,
+    "goout": 1,
+    "Dalc": 11,
+    "Walc": 12,
+    "health": 1,
+    "absences": 1,
+    "G1": 1,
+    "G2": 1,
+    "avg_internal": 1,
+    "grade_trend": 1,
+    "total_alcohol": 2,
+    "study_free_ratio": 1,
+    "parent_edu_avg": 1
+  },
+  "grade_labels": [
+    "Fail",
+    "Pass",
+    "Distinction",
+    "Excellent",
+    "Exceptional"
+  ],
+  "grade_map": {
+    "Fail": 0,
+    "Pass": 1,
+    "Distinction": 2,
+    "Excellent": 3,
+    "Exceptional": 4
+  },
+  "categorical_cols": [
+    "school",
+    "sex",
+    "address",
+    "famsize",
+    "Pstatus",
+    "Mjob",
+    "Fjob",
+    "reason",
+    "guardian",
+    "schoolsup",
+    "famsup",
+    "paid",
+    "activities",
+    "nursery",
+    "higher",
+    "internet",
+    "romantic"
+  ],
+  "cat_options": {
+    "school": [
+      "GP",
+      "MS"
+    ],
+    "sex": [
+      "F",
+      "M"
+    ],
+    "address": [
+      "R",
+      "U"
+    ],
+    "famsize": [
+      "GT3",
+      "LE3"
+    ],
+    "Pstatus": [
+      "A",
+      "T"
+    ],
+    "Mjob": [
+      "at_home",
+      "health",
+      "other",
+      "services",
+      "teacher"
+    ],
+    "Fjob": [
+      "at_home",
+      "health",
+      "other",
+      "services",
+      "teacher"
+    ],
+    "reason": [
+      "course",
+      "home",
+      "other",
+      "reputation"
+    ],
+    "guardian": [
+      "father",
+      "mother",
+      "other"
+    ],
+    "schoolsup": [
+      "no",
+      "yes"
+    ],
+    "famsup": [
+      "no",
+      "yes"
+    ],
+    "paid": [
+      "no",
+      "yes"
+    ],
+    "activities": [
+      "no",
+      "yes"
+    ],
+    "nursery": [
+      "no",
+      "yes"
+    ],
+    "higher": [
+      "no",
+      "yes"
+    ],
+    "internet": [
+      "no",
+      "yes"
+    ],
+    "romantic": [
+      "no",
+      "yes"
+    ]
+  },
+  "cv_results": {
+    "Random Forest": {
+      "model_name": "Random Forest",
+      "mean_accuracy": 0.7194029850746269,
+      "std_accuracy": 0.025678582886694397,
+      "mean_f1": 0.6910167476459727,
+      "std_f1": 0.031424548381315226,
+      "mean_precision": 0.7279218165881622,
+      "mean_recall": 0.7194029850746269,
+      "mean_kappa": 0.623394895948522,
+      "fold_scores": [
+        {
+          "accuracy": 0.7313432835820896,
+          "precision": 0.7208955223880598,
+          "recall": 0.7313432835820896,
+          "f1": 0.6860101406841391,
+          "kappa": 0.6370749322900993,
+          "best_params": {
+            "classifier__class_weight": "balanced",
+            "classifier__max_depth": 10,
+            "classifier__min_samples_split": 2,
+            "classifier__n_estimators": 100
+          }
+        },
+        {
+          "accuracy": 0.6716417910447762,
+          "precision": 0.6835164835164834,
+          "recall": 0.6716417910447762,
+          "f1": 0.64051769126396,
+          "kappa": 0.5606557377049181,
+          "best_params": {
+            "classifier__class_weight": "balanced",
+            "classifier__max_depth": 10,
+            "classifier__min_samples_split": 5,
+            "classifier__n_estimators": 200
+          }
+        },
+        {
+          "accuracy": 0.7164179104477612,
+          "precision": 0.71438263229308,
+          "recall": 0.7164179104477612,
+          "f1": 0.6998808733995245,
+          "kappa": 0.6212436774769414,
+          "best_params": {
+            "classifier__class_weight": "balanced",
+            "classifier__max_depth": 10,
+            "classifier__min_samples_split": 5,
+            "classifier__n_estimators": 200
+          }
+        },
+        {
+          "accuracy": 0.7313432835820896,
+          "precision": 0.7652807391613362,
+          "recall": 0.7313432835820896,
+          "f1": 0.7041272540701929,
+          "kappa": 0.6388140161725067,
+          "best_params": {
+            "classifier__class_weight": "balanced",
+            "classifier__max_depth": 10,
+            "classifier__min_samples_split": 5,
+            "classifier__n_estimators": 100
+          }
+        },
+        {
+          "accuracy": 0.746268656716418,
+          "precision": 0.7555337055818518,
+          "recall": 0.746268656716418,
+          "f1": 0.7245477788120464,
+          "kappa": 0.6591861160981448,
+          "best_params": {
+            "classifier__class_weight": "balanced",
+            "classifier__max_depth": 10,
+            "classifier__min_samples_split": 5,
+            "classifier__n_estimators": 100
+          }
+        }
+      ],
+      "best_params": {
+        "classifier__class_weight": "balanced",
+        "classifier__max_depth": 10,
+        "classifier__min_samples_split": 5,
+        "classifier__n_estimators": 200
+      },
+      "confidence_interval_95": [
+        0.6519980172610812,
+        0.7300354780308641
+      ],
+      "training_time": 405.657858
+    },
+    "SVM": {
+      "model_name": "SVM",
+      "mean_accuracy": 0.5701492537313433,
+      "std_accuracy": 0.05772859583824993,
+      "mean_f1": 0.5376516779551895,
+      "std_f1": 0.07742422016617294,
+      "mean_precision": 0.5429706429265935,
+      "mean_recall": 0.5701492537313433,
+      "mean_kappa": 0.4192566153689505,
+      "fold_scores": [
+        {
+          "accuracy": 0.5223880597014925,
+          "precision": 0.5066590126291619,
+          "recall": 0.5223880597014925,
+          "f1": 0.48614503241368906,
+          "kappa": 0.35789158430667867,
+          "best_params": {
+            "classifier__C": 10,
+            "classifier__class_weight": "balanced",
+            "classifier__gamma": "scale"
+          }
+        },
+        {
+          "accuracy": 0.6716417910447762,
+          "precision": 0.6684894493051982,
+          "recall": 0.6716417910447762,
+          "f1": 0.6531762582132922,
+          "kappa": 0.5580209895052474,
+          "best_params": {
+            "classifier__C": 10,
+            "classifier__class_weight": "balanced",
+            "classifier__gamma": "scale"
+          }
+        },
+        {
+          "accuracy": 0.5970149253731343,
+          "precision": 0.5738958103971272,
+          "recall": 0.5970149253731343,
+          "f1": 0.5799304796545485,
+          "kappa": 0.4539692121943858,
+          "best_params": {
+            "classifier__C": 10,
+            "classifier__class_weight": "balanced",
+            "classifier__gamma": "scale"
+          }
+        },
+        {
+          "accuracy": 0.5223880597014925,
+          "precision": 0.4626994895651612,
+          "recall": 0.5223880597014925,
+          "f1": 0.46803848154987193,
+          "kappa": 0.3504998485307482,
+          "best_params": {
+            "classifier__C": 10,
+            "classifier__class_weight": "balanced",
+            "classifier__gamma": "scale"
+          }
+        },
+        {
+          "accuracy": 0.5373134328358209,
+          "precision": 0.5031094527363185,
+          "recall": 0.5373134328358209,
+          "f1": 0.5009681379445462,
+          "kappa": 0.3759014423076922,
+          "best_params": {
+            "classifier__C": 10,
+            "classifier__class_weight": "balanced",
+            "classifier__gamma": "scale"
+          }
+        }
+      ],
+      "best_params": {
+        "classifier__C": 10,
+        "classifier__class_weight": "balanced",
+        "classifier__gamma": "scale"
+      },
+      "confidence_interval_95": [
+        0.44151681118585073,
+        0.6337865447245283
+      ],
+      "training_time": 188.546272
+    }
+  },
+  "holdout_results": {
+    "Random Forest": {
+      "accuracy": 0.75,
+      "precision": 0.7660139479132614,
+      "recall": 0.75,
+      "f1_score": 0.7248013866820742,
+      "cohen_kappa": 0.6688741721854304,
+      "confusion_matrix": [
+        [
+          19,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          5,
+          7,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          12,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          6,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          3
+        ]
+      ],
+      "per_class": {
+        "precision": {
+          "Fail": 0.8260869565217391,
+          "Pass": 0.7142857142857143,
+          "Distinction": 0.631578947368421,
+          "Excellent": 1.0,
+          "Exceptional": 0.6
+        },
+        "recall": {
+          "Fail": 0.95,
+          "Pass": 0.3125,
+          "Distinction": 0.9230769230769231,
+          "Excellent": 0.75,
+          "Exceptional": 1.0
+        },
+        "f1_score": {
+          "Fail": 0.8837209302325582,
+          "Pass": 0.43478260869565216,
+          "Distinction": 0.75,
+          "Excellent": 0.8571428571428571,
+          "Exceptional": 0.75
+        }
+      }
+    },
+    "SVM": {
+      "accuracy": 0.6333333333333333,
+      "precision": 0.610746352413019,
+      "recall": 0.6333333333333333,
+      "f1_score": 0.6027491601343784,
+      "cohen_kappa": 0.5072788353863382,
+      "confusion_matrix": [
+        [
+          19,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          5,
+          5,
+          0,
+          0
+        ],
+        [
+          2,
+          3,
+          6,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          7,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          1
+        ]
+      ],
+      "per_class": {
+        "precision": {
+          "Fail": 0.7037037037037037,
+          "Pass": 0.5555555555555556,
+          "Distinction": 0.5454545454545454,
+          "Excellent": 0.6363636363636364,
+          "Exceptional": 0.5
+        },
+        "recall": {
+          "Fail": 0.95,
+          "Pass": 0.3125,
+          "Distinction": 0.46153846153846156,
+          "Excellent": 0.875,
+          "Exceptional": 0.3333333333333333
+        },
+        "f1_score": {
+          "Fail": 0.8085106382978723,
+          "Pass": 0.4,
+          "Distinction": 0.5,
+          "Excellent": 0.7368421052631579,
+          "Exceptional": 0.4
+        }
+      }
+    }
+  },
+  "model_comparison": {
+    "model_a": "Random Forest",
+    "model_b": "SVM",
+    "winner": "Random Forest",
+    "t_statistic": 3.3224268097692735,
+    "p_value": 0.029312032873597932,
+    "effect_size": 1.4858344393823715,
+    "is_significant": "True",
+    "confidence_level": 0.95,
+    "interpretation": "Random Forest significantly outperforms the other model (p=0.0293, Cohen's d=1.486 [large effect])."
+  },
+  "recommended_model": "Random Forest",
+  "recommendation_reason": "Random Forest significantly outperforms the other model (p=0.0293, Cohen's d=1.486 [large effect])."
+}

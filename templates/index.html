@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Prediction | ML Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           DESIGN SYSTEM
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            /* Primary Palette */
+            --primary-50: #EEF2FF;
+            --primary-100: #E0E7FF;
+            --primary-200: #C7D2FE;
+            --primary-500: #6366F1;
+            --primary-600: #4F46E5;
+            --primary-700: #4338CA;
+            --primary-800: #3730A3;
+            
+            /* Neutral Palette */
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            
+            /* Semantic Colors */
+            --success-50: #ECFDF5;
+            --success-100: #D1FAE5;
+            --success-500: #10B981;
+            --success-600: #059669;
+            --success-700: #047857;
+            
+            --warning-50: #FFFBEB;
+            --warning-100: #FEF3C7;
+            --warning-500: #F59E0B;
+            --warning-600: #D97706;
+            
+            --danger-50: #FEF2F2;
+            --danger-100: #FEE2E2;
+            --danger-500: #EF4444;
+            --danger-600: #DC2626;
+            
+            --info-50: #EFF6FF;
+            --info-500: #3B82F6;
+            --info-600: #2563EB;
+            
+            /* Grade Colors */
+            --grade-fail: #EF4444;
+            --grade-pass: #F59E0B;
+            --grade-distinction: #3B82F6;
+            --grade-excellent: #10B981;
+            --grade-exceptional: #8B5CF6;
+            
+            /* Layout */
+            --sidebar-width: 360px;
+            --sidebar-collapsed: 64px;
+            --topbar-height: 64px;
+            --content-max-width: 1400px;
+            
+            /* Spacing (8px system) */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --space-12: 48px;
+            
+            /* Typography */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'SF Mono', 'Fira Code', monospace;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            
+            /* Borders */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-base: 200ms ease;
+            --transition-slow: 300ms ease;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           SIDEBAR
+           ═══════════════════════════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--gray-900);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            transition: width var(--transition-slow), min-width var(--transition-slow);
+            z-index: 100;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+            min-width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            padding: var(--space-6);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo i {
+            color: white;
+            width: 20px;
+            height: 20px;
+        }
+
+        .sidebar-brand {
+            overflow: hidden;
+            transition: opacity var(--transition-base);
+        }
+
+        .sidebar.collapsed .sidebar-brand {
+            opacity: 0;
+            width: 0;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .sidebar-brand p {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            white-space: nowrap;
+        }
+
+        .sidebar-toggle {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            color: var(--gray-400);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            transition: background var(--transition-fast);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .sidebar-toggle i {
+            width: 18px;
+            height: 18px;
+            transition: transform var(--transition-base);
+        }
+
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: var(--space-4) 0;
+        }
+
+        /* Custom scrollbar */
+        .sidebar-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-body::-webkit-scrollbar-thumb {
+            background: var(--gray-700);
+            border-radius: 2px;
+        }
+
+        /* Sidebar Sections */
+        .sidebar-section {
+            padding: 0 var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .sidebar-section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-500);
+            padding: var(--space-3) var(--space-4);
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .sidebar-section-title span {
+            display: none;
+        }
+
+        /* Form Fields in Sidebar */
+        .form-group {
+            margin-bottom: var(--space-4);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--gray-300);
+            margin-bottom: var(--space-2);
+            padding: 0 var(--space-4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar.collapsed .form-label {
+            display: none;
+        }
+
+        .form-control {
+            width: calc(100% - var(--space-8));
+            margin: 0 var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: white;
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .sidebar.collapsed .form-control {
+            display: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239CA3AF' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        /* Range Slider */
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: 0 var(--space-4);
+        }
+
+        .sidebar.collapsed .range-group {
+            display: none;
+        }
+
+        .range-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: var(--gray-700);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-500);
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .range-value {
+            min-width: 44px;
+            padding: var(--space-2) var(--space-3);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary-500);
+            background: var(--gray-800);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        /* Accordion */
+        .accordion-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .accordion-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-300);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .accordion-header:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .accordion-header i {
+            width: 20px;
+            height: 20px;
+            color: var(--gray-500);
+        }
+
+        .accordion-header .chevron {
+            margin-left: auto;
+            transition: transform var(--transition-base);
+        }
+
+        .accordion-header.active .chevron {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .accordion-header span,
+        .sidebar.collapsed .accordion-header .chevron {
+            display: none;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-slow);
+        }
+
+        .accordion-content.open {
+            max-height: 2000px;
+        }
+
+        .accordion-inner {
+            padding: 0 0 var(--space-4) 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════════════════════════════ */
+        .main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left var(--transition-slow);
+        }
+
+        /* Topbar */
+        .topbar {
+            height: var(--topbar-height);
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-8);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .topbar-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--success-50);
+            border: 1px solid var(--success-100);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--success-700);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-500);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .version-badge {
+            padding: var(--space-2) var(--space-3);
+            background: var(--gray-100);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            font-family: var(--font-mono);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: var(--space-8);
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-8);
+            background: white;
+            padding: var(--space-1);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        .tab {
+            padding: var(--space-3) var(--space-5);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all var(--transition-fast);
+        }
+
+        .tab i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .tab:hover {
+            color: var(--gray-900);
+            background: var(--gray-50);
+        }
+
+        .tab.active {
+            background: var(--primary-600);
+            color: white;
+        }
+
+        /* Page Content */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CARDS
+           ═══════════════════════════════════════════════════════════════ */
+        .card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-6);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: var(--space-5) var(--space-6);
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .card-title i {
+            width: 20px;
+            height: 20px;
+            color: var(--primary-500);
+        }
+
+        .card-subtitle {
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+            margin-top: var(--space-1);
+        }
+
+        .card-body {
+            padding: var(--space-6);
+        }
+
+        .card-footer {
+            padding: var(--space-4) var(--space-6);
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-100);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PREDICTION CARDS
+           ═══════════════════════════════════════════════════════════════ */
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .prediction-card {
+            position: relative;
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            color: white;
+            overflow: hidden;
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .prediction-card::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -5%;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        /* Model-specific styling */
+        .prediction-card.rf {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+        }
+
+        .prediction-card.svm {
+            background: linear-gradient(135deg, #7C3AED, #5B21B6);
+        }
+
+        .prediction-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .model-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .model-badge i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .prediction-grade {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .grade-icon {
+            font-size: 3.5rem;
+            margin-bottom: var(--space-3);
+            display: block;
+        }
+
+        .grade-label {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: var(--space-2);
+        }
+
+        .grade-confidence {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .confidence-bar {
+            margin-top: var(--space-5);
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        /* Confidence tooltip */
+        .confidence-tooltip {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+            padding: var(--space-2) var(--space-3);
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .confidence-tooltip i {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           STATUS BOXES
+           ═══════════════════════════════════════════════════════════════ */
+        .status-box {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            padding: var(--space-5);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-6);
+        }
+
+        .status-box.success {
+            background: var(--success-50);
+            border: 1px solid var(--success-100);
+        }
+
+        .status-box.warning {
+            background: var(--warning-50);
+            border: 1px solid var(--warning-100);
+        }
+
+        .status-box.info {
+            background: var(--info-50);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .status-box.success .status-icon {
+            background: var(--success-100);
+            color: var(--success-600);
+        }
+
+        .status-box.warning .status-icon {
+            background: var(--warning-100);
+            color: var(--warning-600);
+        }
+
+        .status-box.info .status-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-600);
+        }
+
+        .status-icon i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .status-content h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .status-content p {
+            font-size: 0.8125rem;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           METRICS ROW
+           ═══════════════════════════════════════════════════════════════ */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            text-align: center;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto var(--space-3);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-icon i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .metric-card:nth-child(1) .metric-icon { background: var(--primary-50); color: var(--primary-600); }
+        .metric-card:nth-child(2) .metric-icon { background: var(--success-50); color: var(--success-600); }
+        .metric-card:nth-child(3) .metric-icon { background: var(--warning-50); color: var(--warning-600); }
+        .metric-card:nth-child(4) .metric-icon { background: var(--info-50); color: var(--info-600); }
+        .metric-card:nth-child(5) .metric-icon { background: rgba(139, 92, 246, 0.1); color: #7C3AED; }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: var(--space-1);
+        }
+
+        .metric-card:nth-child(1) .metric-value { color: var(--primary-600); }
+        .metric-card:nth-child(2) .metric-value { color: var(--success-600); }
+        .metric-card:nth-child(3) .metric-value { color: var(--warning-600); }
+        .metric-card:nth-child(4) .metric-value { color: var(--info-600); }
+        .metric-card:nth-child(5) .metric-value { color: #7C3AED; }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           GRID LAYOUTS
+           ═══════════════════════════════════════════════════════════════ */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-6);
+        }
+
+        .grid-2 .card {
+            margin-bottom: 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CHARTS
+           ═══════════════════════════════════════════════════════════════ */
+        .chart-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TABLES
+           ═══════════════════════════════════════════════════════════════ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--gray-500);
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .data-table td {
+            padding: var(--space-4);
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .data-table tr:hover td {
+            background: var(--gray-50);
+        }
+
+        .data-table .highlight {
+            background: var(--success-50);
+            color: var(--success-700);
+            font-weight: 600;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CONFUSION MATRIX
+           ═══════════════════════════════════════════════════════════════ */
+        .matrix-wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .matrix-labels {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            margin-bottom: var(--space-3);
+        }
+
+        .confusion-grid {
+            display: grid;
+            gap: 3px;
+        }
+
+        .cm-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            padding: var(--space-2);
+        }
+
+        .cm-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: transform var(--transition-fast);
+        }
+
+        .cm-cell:hover {
+            transform: scale(1.05);
+            z-index: 1;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RECOMMENDATIONS
+           ═══════════════════════════════════════════════════════════════ */
+        .recommendation-card {
+            background: linear-gradient(135deg, var(--primary-50), white);
+            border: 1px solid var(--primary-100);
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .recommendation-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-100);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-600);
+        }
+
+        .recommendation-icon i {
+            width: 24px;
+            height: 24px;
+        }
+
+        .recommendation-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .recommendation-list {
+            list-style: none;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .recommendation-item:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-priority {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .recommendation-priority.high {
+            background: var(--danger-100);
+            color: var(--danger-600);
+        }
+
+        .recommendation-priority.medium {
+            background: var(--warning-100);
+            color: var(--warning-600);
+        }
+
+        .recommendation-priority.low {
+            background: var(--success-100);
+            color: var(--success-600);
+        }
+
+        .recommendation-text {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+
+        .recommendation-text strong {
+            color: var(--gray-900);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           INTERPRETABILITY SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .interpretation-summary {
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+        }
+
+        .interpretation-text {
+            font-size: 0.9375rem;
+            color: var(--gray-700);
+            line-height: 1.7;
+        }
+
+        .interpretation-text strong {
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+
+        .feature-impact-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+        }
+
+        .feature-tag {
+            padding: var(--space-1) var(--space-3);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .feature-tag.positive {
+            background: var(--success-50);
+            color: var(--success-700);
+        }
+
+        .feature-tag.negative {
+            background: var(--danger-50);
+            color: var(--danger-700);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           WINNER CARD
+           ═══════════════════════════════════════════════════════════════ */
+        .winner-card {
+            background: linear-gradient(135deg, var(--success-50), var(--success-100));
+            border: 2px solid var(--success-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            text-align: center;
+        }
+
+        .winner-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .winner-card p {
+            font-size: 0.9375rem;
+            color: var(--success-600);
+            margin-top: var(--space-2);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           LOADING STATES
+           ═══════════════════════════════════════════════════════════════ */
+        .skeleton {
+            background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: var(--space-2);
+        }
+
+        .skeleton-title {
+            height: 24px;
+            width: 60%;
+            margin-bottom: var(--space-3);
+        }
+
+        .skeleton-chart {
+            height: 200px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TOOLTIPS
+           ═══════════════════════════════════════════════════════════════ */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-trigger::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: var(--space-2) var(--space-3);
+            background: var(--gray-900);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), transform var(--transition-fast);
+            z-index: 100;
+        }
+
+        .tooltip-trigger:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1200px) {
+            .metrics-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .prediction-grid,
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: var(--space-4);
+            }
+
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .tab {
+                flex-shrink: 0;
+            }
+
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .topbar {
+                padding: 0 var(--space-4);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            background: var(--gray-100);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-toggle i {
+            width: 20px;
+            height: 20px;
+            color: var(--gray-600);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+        }
+
+        /* Sidebar overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar Overlay (Mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i data-lucide="graduation-cap"></i>
+        </div>
+        <div class="sidebar-brand">
+            <h1>StudentPredict</h1>
+            <p>ML Analytics Dashboard</p>
+        </div>
+        <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Toggle sidebar">
+            <i data-lucide="chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-body">
+        <!-- Grades Section -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">
+                <i data-lucide="clipboard-list" style="width:14px;height:14px;"></i>
+                <span>Assessment Grades</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">First Semester (G1)</label>
+                <div class="range-group">
+                    <input type="range" class="range-slider" id="G1" min="0" max="20" value="10" 
+                           oninput="updateRange(this)">
+                    <span class="range-value" id="G1_val">10</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Second Semester (G2)</label>
+                <div class="range-group">
+                    <input type="range" class="range-slider" id="G2" min="0" max="20" value="11" 
+                           oninput="updateRange(this)">
+                    <span class="range-value" id="G2_val">11</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information Accordion -->
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <i data-lucide="user"></i>
+                <span>Personal Information</span>
+                <i data-lucide="chevron-down" class="chevron"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+                    <div class="form-group">
+                        <label class="form-label">School</label>
+                        <select class="form-control form-select" id="school" onchange="predict()">
+                            <option value="GP">Gabriel Pereira</option>
+                            <option value="MS">Mousinho da Silveira</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select class="form-control form-select" id="sex" onchange="predict()">
+                            <option value="F">Female</option>
+                            <option value="M">Male</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <div class="range-group">
+                            <input type="range" class="range-slider" id="age" min="15" max="22" value="17" 
+                                   oninput="updateRange(this)">
+                            <span class="range-value" id="age_val">17</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Home Area</label>
+                        <select class="form-control form-select" id="address" onchange="predict()">
+                            <option value="U">Urban</option>
+                            <option value="R">Rural</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Family Background Accordion -->
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <i data-lucide="users"></i>
+                <span>Family Background</span>
+                <i data-lucide="chevron-down" class="chevron"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+                    <div class="form-group">
+                        <label class="form-label">Family Size</label>
+                        <select class="form-control form-select" id="famsize" onchange="predict()">
+                            <option value="GT3">More than 3</option>
+                            <option value="LE3">3 or fewer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Parents Living Together</label>
+                        <select class="form-control form-select" id="Pstatus" onchange="predict()">
+                            <option value="T">Yes</option>
+                            <option value="A">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mother's Education</label>
+                        <select class="form-control form-select" id="Medu" onchange="predict()">
+                            <option value="0">None</option>
+                            <option value="1">Primary</option>
+                            <option value="2" selected>Middle</option>
+                            <option value="3">Secondary</option>
+                            <option value="4">Higher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Father's Education</label>
+                        <select class="form-control form-select" id="Fedu" onchange="predict()">
+                            <option value="0">None</option>
+                            <option value="1">Primary</option>
+                            <option value="2" selected>Middle</option>
+                            <option value="3">Secondary</option>
+                            <option value="4">Higher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mother's Job</label>
+                        <select class="form-control form-select" id="Mjob" onchange="predict()">
+                            <option value="at_home">At Home</option>
+                            <option value="health">Healthcare</option>
+                            <option value="services">Services</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="other" selected>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Father's Job</label>
+                        <select class="form-control form-select" id="Fjob" onchange="predict()">
+                            <option value="at_home">At Home</option>
+                            <option value="health">Healthcare</option>
+                            <option value="services">Services</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="other" selected>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Guardian</label>
+                        <select class="form-control form-select" id="guardian" onchange="predict()">
+                            <option value="mother">Mother</option>
+                            <option value="father">Father</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Factors Accordion -->
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <i data-lucide="book-open"></i>
+                <span>Academic Factors</span>
+                <i data-lucide="chevron-down" class="chevron"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+                    <div class="form-group">
+                        <label class="form-label">Reason for School</label>
+                        <select class="form-control form-select" id="reason" onchange="predict()">
+                            <option value="course">Course</option>
+                            <option value="home">Close to Home</option>
+                            <option value="reputation">Reputation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Travel Time</label>
+                        <select class="form-control form-select" id="traveltime" onchange="predict()">
+                            <option value="1">&lt; 15 min</option>
+                            <option value="2">15-30 min</option>
+                            <option value="3">30-60 min</option>
+                            <option value="4">&gt; 60 min</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Weekly Study Time</label>
+                        <select class="form-control form-select" id="studytime" onchange="predict()">
+                            <option value="1">&lt; 2 hours</option>
+                            <option value="2" selected>2-5 hours</option>
+                            <option value="3">5-10 hours</option>
+                            <option value="4">&gt; 10 hours</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Past Failures</label>
+                        <select class="form-control form-select" id="failures" onchange="predict()">
+                            <option value="0" selected>None</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Extra School Support</label>
+                        <select class="form-control form-select" id="schoolsup" onchange="predict()">
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Family Support</label>
+                        <select class="form-control form-select" id="famsup" onchange="predict()">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Paid Classes</label>
+                        <select class="form-control form-select" id="paid" onchange="predict()">
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lifestyle Accordion -->
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <i data-lucide="heart"></i>
+                <span>Lifestyle & Social</span>
+                <i data-lucide="chevron-down" class="chevron"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+                    <div class="form-group">
+                        <label class="form-label">Extra Activities</label>
+                        <select class="form-control form-select" id="activities" onchange="predict()">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Attended Nursery</label>
+                        <select class="form-control form-select" id="nursery" onchange="predict()">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Higher Education Plans</label>
+                        <select class="form-control form-select" id="higher" onchange="predict()">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Internet at Home</label>
+                        <select class="form-control form-select" id="internet" onchange="predict()">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Romantic Relationship</label>
+                        <select class="form-control form-select" id="romantic" onchange="predict()">
+                            <option value="yes">Yes</option>
+                            <option value="no" selected>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Family Relationship (1-5)</label>
+                        <select class="form-control form-select" id="famrel" onchange="predict()">
+                            <option value="1">1 - Very Bad</option>
+                            <option value="2">2 - Bad</option>
+                            <option value="3">3 - Neutral</option>
+                            <option value="4" selected>4 - Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Free Time (1-5)</label>
+                        <select class="form-control form-select" id="freetime" onchange="predict()">
+                            <option value="1">1 - Very Low</option>
+                            <option value="2">2 - Low</option>
+                            <option value="3" selected>3 - Medium</option>
+                            <option value="4">4 - High</option>
+                            <option value="5">5 - Very High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Going Out (1-5)</label>
+                        <select class="form-control form-select" id="goout" onchange="predict()">
+                            <option value="1">1 - Very Low</option>
+                            <option value="2">2 - Low</option>
+                            <option value="3" selected>3 - Medium</option>
+                            <option value="4">4 - High</option>
+                            <option value="5">5 - Very High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Workday Alcohol (1-5)</label>
+                        <select class="form-control form-select" id="Dalc" onchange="predict()">
+                            <option value="1" selected>1 - Very Low</option>
+                            <option value="2">2 - Low</option>
+                            <option value="3">3 - Medium</option>
+                            <option value="4">4 - High</option>
+                            <option value="5">5 - Very High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Weekend Alcohol (1-5)</label>
+                        <select class="form-control form-select" id="Walc" onchange="predict()">
+                            <option value="1" selected>1 - Very Low</option>
+                            <option value="2">2 - Low</option>
+                            <option value="3">3 - Medium</option>
+                            <option value="4">4 - High</option>
+                            <option value="5">5 - Very High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Health (1-5)</label>
+                        <select class="form-control form-select" id="health" onchange="predict()">
+                            <option value="1">1 - Very Bad</option>
+                            <option value="2">2 - Bad</option>
+                            <option value="3" selected>3 - Average</option>
+                            <option value="4">4 - Good</option>
+                            <option value="5">5 - Very Good</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Absences</label>
+                        <div class="range-group">
+                            <input type="range" class="range-slider" id="absences" min="0" max="75" value="4" 
+                                   oninput="updateRange(this)">
+                            <span class="range-value" id="absences_val">4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                <i data-lucide="menu"></i>
+            </button>
+            <h1 class="topbar-title">Student Performance Prediction</h1>
+        </div>
+        <div class="topbar-right">
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                Live Predictions
+            </div>
+            <span class="version-badge" id="versionBadge">Loading...</span>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-page="prediction" onclick="switchTab(this)">
+                <i data-lucide="target"></i>
+                <span>Prediction</span>
+            </button>
+            <button class="tab" data-page="performance" onclick="switchTab(this)">
+                <i data-lucide="bar-chart-2"></i>
+                <span>Performance</span>
+            </button>
+            <button class="tab" data-page="comparison" onclick="switchTab(this)">
+                <i data-lucide="git-compare"></i>
+                <span>Comparison</span>
+            </button>
+            <button class="tab" data-page="features" onclick="switchTab(this)">
+                <i data-lucide="layers"></i>
+                <span>Features</span>
+            </button>
+        </div>
+
+        <!-- Prediction Page -->
+        <div class="page active" id="page-prediction">
+            <!-- Prediction Cards -->
+            <div class="prediction-grid" id="predictionOutput">
+                <!-- Dynamic content -->
+            </div>
+
+            <!-- Agreement Status -->
+            <div id="agreementOutput"></div>
+
+            <!-- Probability Charts -->
+            <div class="grid-2" style="margin-bottom: var(--space-6);">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">
+                                <i data-lucide="trees"></i>
+                                Random Forest Probabilities
+                            </div>
+                            <p class="card-subtitle">Class probability distribution</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 240px;">
+                            <canvas id="chartRF"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">
+                                <i data-lucide="cpu"></i>
+                                SVM Probabilities
+                            </div>
+                            <p class="card-subtitle">Class probability distribution</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 240px;">
+                            <canvas id="chartSVM"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interpretability Section -->
+            <div class="card" id="interpretabilityCard" style="display: none;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i data-lucide="brain"></i>
+                        Prediction Interpretation
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="interpretation-summary" id="interpretationText">
+                        <!-- Dynamic content -->
+                    </div>
+                    <div class="feature-impact-list" id="featureImpactList">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="card recommendation-card" id="recommendationCard" style="display: none;">
+                <div class="card-body">
+                    <div class="recommendation-header">
+                        <div class="recommendation-icon">
+                            <i data-lucide="lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 class="recommendation-title">Academic Recommendations</h3>
+                            <p class="card-subtitle">Personalized suggestions based on analysis</p>
+                        </div>
+                    </div>
+                    <ul class="recommendation-list" id="recommendationList">
+                        <!-- Dynamic content -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Page -->
+        <div class="page" id="page-performance">
+            <div class="card" style="margin-bottom: var(--space-6);">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i data-lucide="settings"></i>
+                        Model Inspector
+                    </div>
+                </div>
+                <div class="card-body">
+                    <select class="form-control form-select" id="modelPicker" onchange="renderPerformance()" 
+                            style="max-width: 300px; margin: 0;">
+                    </select>
+                </div>
+            </div>
+
+            <div class="metrics-row" id="metricsRow">
+                <!-- Dynamic metrics -->
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="grid-3x3"></i>
+                            Confusion Matrix
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="confusionOutput"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="bar-chart"></i>
+                            Per-Class Metrics
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 280px;">
+                            <canvas id="chartPerClass"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Page -->
+        <div class="page" id="page-comparison">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i data-lucide="table"></i>
+                        Side-by-Side Comparison
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="comparisonTable"></div>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: var(--space-6);">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="bar-chart-horizontal"></i>
+                            Metric Comparison
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="chartComparison"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="radar"></i>
+                            Radar Analysis
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="chartRadar"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="winnerOutput"></div>
+
+            <!-- Statistical Comparison -->
+            <div class="card" id="statisticalCard">
+                                <div class="card-header">
+                    <div class="card-title">
+                        <i data-lucide="flask-conical"></i>
+                        Statistical Analysis
+                    </div>
+                </div>
+                <div class="card-body" id="statisticalOutput">
+                    <!-- Dynamic statistical comparison -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Page -->
+        <div class="page" id="page-features">
+            <div class="grid-2" style="margin-bottom: var(--space-6);">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="bar-chart-2"></i>
+                            Mutual Information Scores
+                        </div>
+                        <select class="form-control form-select" id="miTopN" onchange="updateMIChart()" 
+                                style="width: auto; margin: 0; padding: 6px 32px 6px 12px;">
+                            <option value="5">Top 5</option>
+                            <option value="10" selected>Top 10</option>
+                            <option value="15">Top 15</option>
+                            <option value="20">All</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="chartMI"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="list-ordered"></i>
+                            RFE Feature Ranking
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="chartRFE"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i data-lucide="award"></i>
+                        Selected Features Summary
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="selectedFeaturesOutput"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- JavaScript -->
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const GRADES = ['Fail', 'Pass', 'Distinction', 'Excellent', 'Exceptional'];
+
+const COLORS = {
+    Fail: '#EF4444',
+    Pass: '#F59E0B',
+    Distinction: '#3B82F6',
+    Excellent: '#10B981',
+    Exceptional: '#8B5CF6'
+};
+
+const GRADE_ICONS = {
+    Fail: '⚠️',
+    Pass: '✅',
+    Distinction: '🎯',
+    Excellent: '🌟',
+    Exceptional: '🏆'
+};
+
+const GRADE_CLASSES = {
+    Fail: 'fail',
+    Pass: 'pass',
+    Distinction: 'distinction',
+    Excellent: 'excellent',
+    Exceptional: 'exceptional'
+};
+
+// Feature descriptions for interpretability
+const FEATURE_DESCRIPTIONS = {
+    'G1': 'First period grade',
+    'G2': 'Second period grade',
+    'avg_internal': 'Average internal grade',
+    'grade_trend': 'Grade improvement trend',
+    'failures': 'Past class failures',
+    'absences': 'School absences',
+    'studytime': 'Weekly study time',
+    'Medu': "Mother's education level",
+    'Fedu': "Father's education level",
+    'parent_edu_avg': 'Average parent education',
+    'goout': 'Going out frequency',
+    'Dalc': 'Workday alcohol consumption',
+    'Walc': 'Weekend alcohol consumption',
+    'total_alcohol': 'Total alcohol consumption',
+    'freetime': 'Free time after school',
+    'health': 'Current health status',
+    'famrel': 'Family relationship quality',
+    'higher': 'Plans for higher education'
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let modelData = null;
+let currentPrediction = null;
+let charts = {
+    rf: null,
+    svm: null,
+    perClass: null,
+    comparison: null,
+    radar: null,
+    mi: null,
+    rfe: null
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CHART.JS CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6B7280';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+Chart.defaults.plugins.legend.labels.padding = 16;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Initialize probability charts
+    initProbabilityCharts();
+    
+    // Load model data
+    await loadModelData();
+    
+    // Initial prediction
+    predict();
+});
+
+async function loadModelData() {
+    try {
+        const response = await fetch('/api/model-info');
+        modelData = await response.json();
+        
+        // Update version badge
+        document.getElementById('versionBadge').textContent = modelData.version || 'v1.0.0';
+        
+        // Setup pages
+        setupPerformancePage();
+        setupComparisonPage();
+        setupFeaturesPage();
+        
+        console.log('Model data loaded:', modelData);
+    } catch (error) {
+        console.error('Error loading model data:', error);
+        document.getElementById('versionBadge').textContent = 'Error';
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UI INTERACTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+}
+
+function toggleSidebarCollapse() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+}
+
+function toggleAccordion(button) {
+    const content = button.nextElementSibling;
+    const isOpen = content.classList.contains('open');
+    
+    // Close all accordions
+    document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('open'));
+    document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('active'));
+    
+    // Open this one if it was closed
+    if (!isOpen) {
+        content.classList.add('open');
+        button.classList.add('active');
+    }
+}
+
+function switchTab(button) {
+    const page = button.dataset.page;
+    
+    // Update tabs
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    button.classList.add('active');
+    
+    // Update pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${page}`).classList.add('active');
+}
+
+function updateRange(input) {
+    document.getElementById(input.id + '_val').textContent = input.value;
+    predict();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PREDICTION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function getInputs() {
+    const fields = [
+        'G1', 'G2', 'age', 'school', 'sex', 'address', 'famsize', 'Pstatus',
+        'Medu', 'Fedu', 'Mjob', 'Fjob', 'guardian', 'reason', 'traveltime',
+        'studytime', 'failures', 'schoolsup', 'famsup', 'paid', 'activities',
+        'nursery', 'higher', 'internet', 'romantic', 'famrel', 'freetime',
+        'goout', 'Dalc', 'Walc', 'health', 'absences'
+    ];
+    
+    const data = {};
+    fields.forEach(field => {
+        const el = document.getElementById(field);
+        if (el) {
+            data[field] = el.type === 'range' ? parseInt(el.value) : el.value;
+        }
+    });
+    
+    return data;
+}
+
+async function predict() {
+    try {
+        const inputs = getInputs();
+        
+        const response = await fetch('/api/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(inputs)
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error('Prediction error:', data.error);
+            return;
+        }
+        
+        currentPrediction = data;
+        renderPrediction(data, inputs);
+        
+    } catch (error) {
+        console.error('Prediction failed:', error);
+    }
+}
+
+function renderPrediction(data, inputs) {
+    const { rf, svm, agree, recommended_model } = data;
+    
+    // Render prediction cards
+    document.getElementById('predictionOutput').innerHTML = `
+        <div class="prediction-card rf">
+            <div class="prediction-card-header">
+                <div class="model-badge">
+                    <i data-lucide="trees"></i>
+                    Random Forest
+                </div>
+                ${recommended_model === 'Random Forest' ? '<span class="model-badge" style="background: rgba(16,185,129,0.3);">Recommended</span>' : ''}
+            </div>
+            <div class="prediction-grade">
+                <span class="grade-icon">${GRADE_ICONS[rf.grade]}</span>
+                <div class="grade-label">${rf.grade}</div>
+                <div class="grade-confidence">${Math.round(rf.confidence * 100)}% Confidence</div>
+            </div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width: ${rf.confidence * 100}%"></div>
+            </div>
+            <div class="confidence-tooltip">
+                <i data-lucide="info"></i>
+                Confidence indicates model certainty, not accuracy
+            </div>
+        </div>
+        
+        <div class="prediction-card svm">
+            <div class="prediction-card-header">
+                <div class="model-badge">
+                    <i data-lucide="cpu"></i>
+                    SVM (RBF)
+                </div>
+                ${recommended_model === 'SVM' ? '<span class="model-badge" style="background: rgba(16,185,129,0.3);">Recommended</span>' : ''}
+            </div>
+            <div class="prediction-grade">
+                <span class="grade-icon">${GRADE_ICONS[svm.grade]}</span>
+                <div class="grade-label">${svm.grade}</div>
+                <div class="grade-confidence">${Math.round(svm.confidence * 100)}% Confidence</div>
+            </div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width: ${svm.confidence * 100}%"></div>
+            </div>
+            <div class="confidence-tooltip">
+                <i data-lucide="info"></i>
+                Confidence indicates model certainty, not accuracy
+            </div>
+        </div>
+    `;
+    
+    // Re-init icons
+    lucide.createIcons();
+    
+    // Render agreement status
+    renderAgreementStatus(rf, svm, agree);
+    
+    // Update probability charts
+    updateProbabilityChart(charts.rf, rf.probabilities, rf.grade);
+    updateProbabilityChart(charts.svm, svm.probabilities, svm.grade);
+    
+    // Render interpretability
+    renderInterpretation(rf, svm, inputs);
+    
+    // Render recommendations
+    renderRecommendations(rf, svm, inputs);
+}
+
+function renderAgreementStatus(rf, svm, agree) {
+    const avgConf = Math.round((rf.confidence + svm.confidence) / 2 * 100);
+    
+    let html;
+    if (agree) {
+        html = `
+            <div class="status-box success">
+                <div class="status-icon">
+                    <i data-lucide="check-circle"></i>
+                </div>
+                <div class="status-content">
+                    <h4>Models Agree: ${rf.grade}</h4>
+                    <p>Both Random Forest and SVM predict the same grade category with an average confidence of ${avgConf}%.</p>
+                </div>
+            </div>
+        `;
+    } else {
+        html = `
+            <div class="status-box warning">
+                <div class="status-icon">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="status-content">
+                    <h4>Models Disagree</h4>
+                    <p>Random Forest predicts <strong>${rf.grade}</strong> (${Math.round(rf.confidence * 100)}%) while SVM predicts <strong>${svm.grade}</strong> (${Math.round(svm.confidence * 100)}%). Consider the recommended model or examine individual probabilities.</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    document.getElementById('agreementOutput').innerHTML = html;
+    lucide.createIcons();
+}
+
+function renderInterpretation(rf, svm, inputs) {
+    const card = document.getElementById('interpretabilityCard');
+    const textEl = document.getElementById('interpretationText');
+    const listEl = document.getElementById('featureImpactList');
+    
+    // Get top features from model data
+    const miScores = modelData?.mi_scores || {};
+    const selectedFeatures = modelData?.selected_features || [];
+    
+    // Sort features by MI score
+    const sortedFeatures = Object.entries(miScores)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+    
+    // Build interpretation text
+    const primaryModel = rf.confidence >= svm.confidence ? 'Random Forest' : 'SVM';
+    const primaryGrade = rf.confidence >= svm.confidence ? rf.grade : svm.grade;
+    const topFeature = sortedFeatures[0]?.[0] || 'G2';
+    const secondFeature = sortedFeatures[1]?.[0] || 'avg_internal';
+    
+    const g1 = inputs.G1;
+    const g2 = inputs.G2;
+    const avgGrade = (g1 + g2) / 2;
+    const trend = g2 - g1;
+    
+    let interpretation = `The prediction of <strong>${primaryGrade}</strong> is primarily influenced by `;
+    interpretation += `<strong>${FEATURE_DESCRIPTIONS[topFeature] || topFeature}</strong> and `;
+    interpretation += `<strong>${FEATURE_DESCRIPTIONS[secondFeature] || secondFeature}</strong>. `;
+    
+    if (avgGrade >= 14) {
+        interpretation += `The student's strong internal performance (avg: ${avgGrade.toFixed(1)}) significantly supports this prediction.`;
+    } else if (avgGrade < 10) {
+        interpretation += `The student's internal performance (avg: ${avgGrade.toFixed(1)}) indicates academic challenges.`;
+    } else {
+        interpretation += `The student's moderate internal performance (avg: ${avgGrade.toFixed(1)}) places them in an intermediate category.`;
+    }
+    
+    if (trend > 2) {
+        interpretation += ` Notably, there's a positive trend (+${trend}) from G1 to G2, indicating improvement.`;
+    } else if (trend < -2) {
+        interpretation += ` There's a concerning decline (${trend}) from G1 to G2 that may impact future performance.`;
+    }
+    
+    textEl.innerHTML = `<p class="interpretation-text">${interpretation}</p>`;
+    
+    // Build feature impact tags
+    let tagsHtml = '';
+    sortedFeatures.forEach(([feature, score]) => {
+        const desc = FEATURE_DESCRIPTIONS[feature] || feature;
+        const impact = score > 0.5 ? 'positive' : score > 0.2 ? 'positive' : 'negative';
+        tagsHtml += `<span class="feature-tag ${impact}">${desc}</span>`;
+    });
+    listEl.innerHTML = tagsHtml;
+    
+    card.style.display = 'block';
+}
+
+function renderRecommendations(rf, svm, inputs) {
+    const card = document.getElementById('recommendationCard');
+    const list = document.getElementById('recommendationList');
+    
+    const primaryGrade = rf.confidence >= svm.confidence ? rf.grade : svm.grade;
+    const recommendations = [];
+    
+    // Generate dynamic recommendations based on inputs
+    if (inputs.studytime <= 2) {
+        recommendations.push({
+            priority: 'high',
+            text: `<strong>Increase study time:</strong> Current study time is low. Aim for at least 5-10 hours per week to improve academic outcomes.`
+        });
+    }
+    
+    if (inputs.absences > 10) {
+        recommendations.push({
+            priority: 'high',
+            text: `<strong>Reduce absences:</strong> With ${inputs.absences} absences, attendance is a concern. Regular attendance is strongly correlated with better grades.`
+        });
+    }
+    
+    if (inputs.failures > 0) {
+        recommendations.push({
+            priority: 'high',
+            text: `<strong>Address past failures:</strong> Previous failures (${inputs.failures}) may affect confidence. Consider tutoring or academic support programs.`
+        });
+    }
+    
+    if (parseInt(inputs.Dalc) >= 3 || parseInt(inputs.Walc) >= 3) {
+        recommendations.push({
+            priority: 'medium',
+            text: `<strong>Monitor alcohol consumption:</strong> Higher alcohol intake is associated with lower academic performance. Consider moderating consumption.`
+        });
+    }
+    
+    if (inputs.famsup === 'no') {
+        recommendations.push({
+            priority: 'medium',
+            text: `<strong>Seek family support:</strong> Family educational support can significantly improve outcomes. Encourage family involvement in academics.`
+        });
+    }
+    
+    if (inputs.internet === 'no') {
+        recommendations.push({
+            priority: 'low',
+            text: `<strong>Internet access:</strong> Having internet at home can help with research and online learning resources.`
+        });
+    }
+    
+    // Grade-specific recommendations
+    if (primaryGrade === 'Fail') {
+        recommendations.unshift({
+            priority: 'high',
+            text: `<strong>Immediate intervention needed:</strong> Consider personal tutoring, restructured study plans, and frequent progress monitoring.`
+        });
+    } else if (primaryGrade === 'Pass') {
+        recommendations.push({
+            priority: 'medium',
+            text: `<strong>Room for improvement:</strong> Focus on consistent study habits and addressing weak areas to move toward Distinction.`
+        });
+    } else if (primaryGrade === 'Exceptional') {
+        recommendations.push({
+            priority: 'low',
+            text: `<strong>Maintain excellence:</strong> Consider advanced courses, research opportunities, or mentorship programs.`
+        });
+    }
+    
+    // Limit to top 4 recommendations
+    const topRecs = recommendations.slice(0, 4);
+    
+    let html = '';
+    topRecs.forEach((rec, index) => {
+        html += `
+            <li class="recommendation-item">
+                <span class="recommendation-priority ${rec.priority}">${index + 1}</span>
+                <p class="recommendation-text">${rec.text}</p>
+            </li>
+        `;
+    });
+    
+    list.innerHTML = html;
+    card.style.display = topRecs.length > 0 ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PROBABILITY CHARTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function initProbabilityCharts() {
+    const baseConfig = {
+        type: 'bar',
+        data: {
+            labels: GRADES,
+            datasets: [{
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: GRADES.map(g => COLORS[g] + '40'),
+                borderColor: GRADES.map(g => COLORS[g]),
+                borderWidth: 2,
+                borderRadius: 6,
+                barThickness: 40
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: { color: '#F3F4F6' },
+                    ticks: {
+                        callback: v => (v * 100) + '%',
+                        stepSize: 0.25
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${(ctx.raw * 100).toFixed(1)}%`
+                    }
+                }
+            },
+            animation: {
+                duration: 400,
+                easing: 'easeOutQuart'
+            }
+        }
+    };
+    
+    charts.rf = new Chart(document.getElementById('chartRF'), JSON.parse(JSON.stringify(baseConfig)));
+    charts.svm = new Chart(document.getElementById('chartSVM'), JSON.parse(JSON.stringify(baseConfig)));
+}
+
+function updateProbabilityChart(chart, probabilities, predictedGrade) {
+    if (!chart) return;
+    
+    const data = GRADES.map(g => probabilities[g] || 0);
+    
+    chart.data.datasets[0].data = data;
+    chart.data.datasets[0].backgroundColor = GRADES.map((g, i) =>
+        g === predictedGrade ? COLORS[g] : COLORS[g] + '30'
+    );
+    chart.data.datasets[0].borderColor = GRADES.map(g => COLORS[g]);
+    
+    chart.update('none');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PERFORMANCE PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupPerformancePage() {
+    if (!modelData?.results) return;
+    
+    const picker = document.getElementById('modelPicker');
+    picker.innerHTML = '';
+    
+    Object.keys(modelData.results).forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        picker.appendChild(option);
+    });
+    
+    renderPerformance();
+}
+
+function renderPerformance() {
+    const modelName = document.getElementById('modelPicker').value;
+    const result = modelData?.results?.[modelName];
+    
+    if (!result) return;
+    
+    // Render metrics
+    const metrics = [
+        { label: 'Accuracy', value: result.accuracy, icon: 'target' },
+        { label: 'Precision', value: result.precision, icon: 'crosshair' },
+        { label: 'Recall', value: result.recall, icon: 'refresh-cw' },
+        { label: 'F1-Score', value: result.f1_score, icon: 'activity' },
+        { label: 'Cohen κ', value: result.cohen_kappa, icon: 'award' }
+    ];
+    
+    document.getElementById('metricsRow').innerHTML = metrics.map(m => `
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i data-lucide="${m.icon}"></i>
+            </div>
+            <div class="metric-value">${(m.value * 100).toFixed(1)}%</div>
+            <div class="metric-label">${m.label}</div>
+        </div>
+    `).join('');
+    
+    lucide.createIcons();
+    
+    // Render confusion matrix
+    renderConfusionMatrix(result.confusion_matrix);
+    
+    // Render per-class chart
+    renderPerClassChart(result.per_class);
+}
+
+function renderConfusionMatrix(matrix) {
+    if (!matrix || matrix.length === 0) return;
+    
+    const n = GRADES.length;
+    const maxVal = Math.max(...matrix.flat(), 1);
+    
+    let html = `
+        <div class="matrix-wrapper">
+            <div class="matrix-labels">Actual ↓ &nbsp;•&nbsp; Predicted →</div>
+            <div class="confusion-grid" style="grid-template-columns: 70px repeat(${n}, 1fr);">
+                <div class="cm-header"></div>
+    `;
+    
+    // Column headers
+    GRADES.forEach(g => {
+        html += `<div class="cm-header">${g.substring(0, 4)}</div>`;
+    });
+    
+    // Matrix cells
+    matrix.forEach((row, i) => {
+        html += `<div class="cm-header">${GRADES[i].substring(0, 4)}</div>`;
+        
+        row.forEach((val, j) => {
+            const norm = val / maxVal;
+            const isDiagonal = i === j;
+            
+            let bg, color;
+            if (isDiagonal) {
+                bg = `rgba(16, 185, 129, ${0.15 + norm * 0.6})`;
+                color = norm > 0.4 ? 'white' : '#047857';
+            } else {
+                bg = `rgba(239, 68, 68, ${norm * 0.3})`;
+                color = norm > 0.3 ? 'white' : '#6B7280';
+            }
+            
+            html += `
+                <div class="cm-cell" style="background: ${bg}; color: ${color}; font-weight: ${isDiagonal ? 700 : 500};">
+                    ${val}
+                </div>
+            `;
+        });
+    });
+    
+    html += '</div></div>';
+    document.getElementById('confusionOutput').innerHTML = html;
+}
+
+function renderPerClassChart(perClass) {
+    if (!perClass) return;
+    
+    if (charts.perClass) charts.perClass.destroy();
+    
+    charts.perClass = new Chart(document.getElementById('chartPerClass'), {
+        type: 'bar',
+        data: {
+            labels: GRADES,
+            datasets: [
+                {
+                    label: 'Precision',
+                    data: GRADES.map(g => perClass.precision?.[g] || 0),
+                    backgroundColor: '#3B82F6',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Recall',
+                    data: GRADES.map(g => perClass.recall?.[g] || 0),
+                    backgroundColor: '#10B981',
+                    borderRadius: 4
+                },
+                {
+                    label: 'F1-Score',
+                    data: GRADES.map(g => perClass.f1_score?.[g] || 0),
+                    backgroundColor: '#F59E0B',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1.1,
+                    grid: { color: '#F3F4F6' },
+                    ticks: { callback: v => (v * 100) + '%' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPARISON PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupComparisonPage() {
+    if (!modelData?.results) return;
+    
+    const results = modelData.results;
+    const models = Object.keys(results);
+    const metricKeys = ['accuracy', 'precision', 'recall', 'f1_score', 'cohen_kappa'];
+    const metricLabels = ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'Cohen κ'];
+    
+    // Comparison table
+    let tableHtml = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    ${metricLabels.map(m => `<th>${m}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    models.forEach(name => {
+        tableHtml += `<tr><td style="font-weight: 600;">${name}</td>`;
+        metricKeys.forEach(key => {
+            const value = results[name][key];
+            const bestValue = Math.max(...models.map(n => results[n][key]));
+            const cellClass = value === bestValue ? 'highlight' : '';
+            tableHtml += `<td class="${cellClass}">${(value * 100).toFixed(2)}%</td>`;
+        });
+        tableHtml += '</tr>';
+    });
+    
+    tableHtml += '</tbody></table>';
+    document.getElementById('comparisonTable').innerHTML = tableHtml;
+    
+    // Bar chart comparison
+    if (charts.comparison) charts.comparison.destroy();
+    
+    charts.comparison = new Chart(document.getElementById('chartComparison'), {
+        type: 'bar',
+        data: {
+            labels: metricLabels,
+            datasets: models.map((name, i) => ({
+                label: name,
+                data: metricKeys.map(k => results[name][k]),
+                backgroundColor: i === 0 ? '#4F46E5' : '#10B981',
+                borderRadius: 4
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1.1,
+                    grid: { color: '#F3F4F6' },
+                    ticks: { callback: v => (v * 100) + '%' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+    
+    // Radar chart
+    if (charts.radar) charts.radar.destroy();
+    
+    charts.radar = new Chart(document.getElementById('chartRadar'), {
+        type: 'radar',
+        data: {
+            labels: metricLabels,
+            datasets: models.map((name, i) => ({
+                label: name,
+                data: metricKeys.map(k => results[name][k]),
+                borderColor: i === 0 ? '#4F46E5' : '#10B981',
+                backgroundColor: i === 0 ? 'rgba(79, 70, 229, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: i === 0 ? '#4F46E5' : '#10B981'
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 0.2,
+                        backdropColor: 'transparent'
+                    },
+                    grid: { color: '#E5E7EB' },
+                    angleLines: { color: '#E5E7EB' },
+                    pointLabels: { font: { size: 11, weight: '500' } }
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+    
+    // Winner card
+    let bestModel = models[0];
+    let bestF1 = results[models[0]].f1_score;
+    
+    models.forEach(name => {
+        if (results[name].f1_score > bestF1) {
+            bestF1 = results[name].f1_score;
+            bestModel = name;
+        }
+    });
+    
+    document.getElementById('winnerOutput').innerHTML = `
+        <div class="winner-card">
+            <h3>🏆 Best Performer: ${bestModel}</h3>
+            <p>F1-Score: ${(bestF1 * 100).toFixed(2)}% • Accuracy: ${(results[bestModel].accuracy * 100).toFixed(2)}%</p>
+        </div>
+    `;
+    
+    // Statistical comparison
+    renderStatisticalComparison();
+}
+
+function renderStatisticalComparison() {
+    const comparison = modelData?.model_comparison;
+    
+    if (!comparison) {
+        document.getElementById('statisticalOutput').innerHTML = `
+            <p style="color: var(--gray-500);">Statistical comparison data not available.</p>
+        `;
+        return;
+    }
+    
+    const isSignificant = comparison.is_significant;
+    const pValue = comparison.p_value;
+    const effectSize = comparison.effect_size;
+    
+    let effectDesc = 'negligible';
+    if (Math.abs(effectSize) >= 0.8) effectDesc = 'large';
+    else if (Math.abs(effectSize) >= 0.5) effectDesc = 'medium';
+    else if (Math.abs(effectSize) >= 0.2) effectDesc = 'small';
+    
+    document.getElementById('statisticalOutput').innerHTML = `
+        <div class="interpretation-summary">
+            <p class="interpretation-text">
+                <strong>Paired t-test results:</strong><br>
+                • t-statistic: ${comparison.t_statistic?.toFixed(4) || 'N/A'}<br>
+                • p-value: ${pValue?.toFixed(4) || 'N/A'}<br>
+                • Effect size (Cohen's d): ${effectSize?.toFixed(4) || 'N/A'} (${effectDesc})<br>
+                • Significance (α=0.05): ${isSignificant ? '<span style="color: var(--success-600);">Yes</span>' : '<span style="color: var(--gray-500);">No</span>'}
+            </p>
+            <p class="interpretation-text" style="margin-top: 12px;">
+                <strong>Interpretation:</strong> ${comparison.interpretation || 'No interpretation available.'}
+            </p>
+        </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURES PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupFeaturesPage() {
+    updateMIChart();
+    renderRFEChart();
+    renderSelectedFeatures();
+}
+
+function updateMIChart() {
+    const topN = parseInt(document.getElementById('miTopN')?.value || 10);
+    const miScores = modelData?.mi_scores || {};
+    
+    const sorted = Object.entries(miScores)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, topN);
+    
+    if (charts.mi) charts.mi.destroy();
+    
+    const maxScore = sorted[0]?.[1] || 1;
+    
+    charts.mi = new Chart(document.getElementById('chartMI'), {
+        type: 'bar',
+        data: {
+            labels: sorted.map(x => x[0]),
+            datasets: [{
+                data: sorted.map(x => x[1]),
+                backgroundColor: sorted.map(x => {
+                    const norm = x[1] / maxScore;
+                    return `rgba(79, 70, 229, ${0.3 + norm * 0.6})`;
+                }),
+                borderColor: '#4F46E5',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    grid: { color: '#F3F4F6' },
+                    title: {
+                        display: true,
+                        text: 'MI Score',
+                        font: { weight: '600' }
+                    }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `Score: ${ctx.raw.toFixed(4)}`
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderRFEChart() {
+    const rfeRanking = modelData?.rfe_ranking || {};
+    
+    const sorted = Object.entries(rfeRanking)
+        .sort((a, b) => a[1] - b[1])
+        .slice(0, 15);
+    
+    if (charts.rfe) charts.rfe.destroy();
+    
+    charts.rfe = new Chart(document.getElementById('chartRFE'), {
+        type: 'bar',
+        data: {
+            labels: sorted.map(x => x[0]),
+            datasets: [{
+                data: sorted.map(x => x[1]),
+                backgroundColor: sorted.map(x => x[1] === 1 ? '#10B981' : '#D1D5DB'),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    grid: { color: '#F3F4F6' },
+                    title: {
+                        display: true,
+                        text: 'Rank (1 = Selected)',
+                        font: { weight: '600' }
+                    }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `Rank: ${ctx.raw}`
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderSelectedFeatures() {
+    const selectedFeatures = modelData?.selected_features || [];
+    const miScores = modelData?.mi_scores || {};
+    
+    if (selectedFeatures.length === 0) {
+        document.getElementById('selectedFeaturesOutput').innerHTML = `
+            <p style="color: var(--gray-500);">No feature selection data available.</p>
+        `;
+        return;
+    }
+    
+    // Sort by MI score
+    const sorted = selectedFeatures
+        .map(f => ({ name: f, score: miScores[f] || 0 }))
+        .sort((a, b) => b.score - a.score);
+    
+    let html = `
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+    `;
+    
+    sorted.forEach((f, i) => {
+        const desc = FEATURE_DESCRIPTIONS[f.name] || f.name;
+        const isTop = i < 5;
+        html += `
+            <span class="feature-tag ${isTop ? 'positive' : ''}" 
+                  style="${!isTop ? 'background: var(--gray-100); color: var(--gray-600);' : ''}"
+                  title="MI Score: ${f.score.toFixed(4)}">
+                ${desc}
+            </span>
+        `;
+    });
+    
+    html += '</div>';
+    
+    html += `
+        <p style="margin-top: 16px; font-size: 0.875rem; color: var(--gray-500);">
+            ${selectedFeatures.length} features selected using the combined MI + RFE approach.
+            Green tags indicate top 5 features by importance.
+        </p>
+    `;
+    
+    document.getElementById('selectedFeaturesOutput').innerHTML = html;
+}
+</script>
+</body>
+</html>
